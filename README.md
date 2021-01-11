@@ -21,7 +21,7 @@ on:
 steps:
   - uses: yuya-takeyama/github-actions-metrics-to-datadog-action@1
     with:
-			datadog-api-key: ${{ secrets.DATADOG_API_KEY }}
+      datadog-api-key: ${{ secrets.DATADOG_API_KEY }}
 ```
 
 ## Inputs
