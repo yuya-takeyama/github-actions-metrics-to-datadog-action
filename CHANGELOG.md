@@ -1,5 +1,6 @@
 # Change Log
 
-## [1.0.0] - 2020-09-21
+## [0.1.0] - 2021-01-11
 
 * Initial release
+* Implement `github.actions.workflow_duration`
