@@ -1,0 +1,30 @@
+name: 'build-test'
+on: # rebuild any PRs and main branch changes
+  pull_request:
+  push:
+    branches:
+      - main
+
+jobs:
+  build: # make sure build/ci work properly
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - run: |
+          yarn
+      - run: |
+          yarn all
+  test: # make sure the action works on a clean machine without building
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - id: docker-tags
+        uses: ./
+        with:
+          image: 'foo/bar'
+          tag: '1.2.3.4'
+      - name: Print output
+        run: 'printf "${{ steps.docker-tags.outputs.tags }}"'
+      - name: Test output
+        run: 'exit 1'
+        if: ${{ steps.docker-tags.outputs.tags != 'foo/bar:1.2.3.4,foo/bar:1.2.3,foo/bar:1.2,foo/bar:1' }}

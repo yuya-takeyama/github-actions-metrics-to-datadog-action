@@ -1,0 +1,13 @@
+name: 'GitHub Actions metrics to Datadog'
+description: 'Send metrics of GitHub Actions to Datadog'
+author: 'Yuya Takeyama'
+branding:
+  icon: 'bar-chart'
+  color: 'purple'
+inputs:
+  datadog-api-key:
+    required: true
+    description: 'Datadog API key'
+runs:
+  using: 'node12'
+  main: 'dist/index.js'

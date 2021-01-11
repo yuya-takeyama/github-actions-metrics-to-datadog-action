@@ -1,0 +1,43 @@
+{
+  "name": "@yuya-takeyama/github-actions-metrics-to-datadog-action",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Send metrics of GitHub Actions to Datadog",
+  "main": "lib/main.js",
+  "scripts": {
+    "build": "tsc",
+    "format": "prettier --write **/*.ts",
+    "format-check": "prettier --check **/*.ts",
+    "lint": "eslint src/**/*.ts",
+    "package": "ncc build --source-map --license licenses.txt",
+    "test": "jest",
+    "all": "yarn build && yarn format && yarn lint && yarn package && yarn test"
+  },
+  "keywords": [
+    "actions",
+    "metrics",
+    "datadog"
+  ],
+  "author": "Yuya Takeyama",
+  "license": "MIT",
+  "dependencies": {
+    "@actions/core": "^1.2.6",
+    "@actions/github": "^4.0.0"
+  },
+  "devDependencies": {
+    "@types/jest": "^26.0.20",
+    "@types/node": "^14.14.20",
+    "@typescript-eslint/parser": "^4.12.0",
+    "@vercel/ncc": "^0.26.2",
+    "eslint": "^7.17.0",
+    "eslint-plugin-github": "^4.1.1",
+    "eslint-plugin-jest": "^24.1.3",
+    "eslint-plugin-prettier": "^3.3.1",
+    "jest": "^24.9.0",
+    "jest-circus": "^26.6.3",
+    "js-yaml": "^4.0.0",
+    "prettier": "2.2.1",
+    "ts-jest": "^24.3.0",
+    "typescript": "^4.1.3"
+  }
+}
