@@ -9,19 +9,20 @@ Send metrics of GitHub Actions to Datadog
 ## Usage
 
 ```yaml
-name: github-actions-metrics-to-datadog-action
-
 on:
   workflow_run:
     workflows:
-      - '*'
+      - '**'
     types:
       - completed
 
-steps:
-  - uses: yuya-takeyama/github-actions-metrics-to-datadog-action@v0.1.0
-    with:
-      datadog-api-key: ${{ secrets.DATADOG_API_KEY }}
+jobs:
+  actions-metrics:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: yuya-takeyama/github-actions-metrics-to-datadog-action@v0.1.0
+        with:
+          datadog-api-key: ${{ secrets.DATADOG_API_KEY }}
 ```
 
 ## Inputs
