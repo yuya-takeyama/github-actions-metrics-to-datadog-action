@@ -19,7 +19,7 @@ on:
       - completed
 
 steps:
-  - uses: yuya-takeyama/github-actions-metrics-to-datadog-action@1
+  - uses: yuya-takeyama/github-actions-metrics-to-datadog-action@v0.1.0
     with:
       datadog-api-key: ${{ secrets.DATADOG_API_KEY }}
 ```
