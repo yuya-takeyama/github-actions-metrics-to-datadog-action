@@ -2,6 +2,76 @@ require('./sourcemap-register.js');module.exports =
 /******/ (() => { // webpackBootstrap
 /******/ 	var __webpack_modules__ = ({
 
+/***/ 401:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.postMetrics = void 0;
+const node_fetch_1 = __importDefault(__nccwpck_require__(467));
+const postMetrics = (apiKey, metrics) => __awaiter(void 0, void 0, void 0, function* () {
+    const res = yield node_fetch_1.default(`https://api.datadoghq.com/api/v1/series?api_key=${apiKey}`, {
+        method: 'post',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(metrics),
+    });
+    if (res.status !== 202) {
+        throw new Error(`Error response from Datadog: ${res.status}`);
+    }
+    return { response: res };
+});
+exports.postMetrics = postMetrics;
+
+
+/***/ }),
+
+/***/ 928:
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.getWorkflowDuration = exports.parseWorkflowRun = void 0;
+const parseWorkflowRun = (payload) => {
+    return {
+        id: payload.id,
+        url: payload.url,
+        runNumber: payload.run_number,
+        workflowId: payload.workflow_id,
+        workflowUrl: payload.workflow_url,
+        name: payload.name,
+        event: payload.event,
+        status: payload.status,
+        conclusion: payload.conclusion,
+        headBranch: payload.head_branch,
+        createdAt: new Date(payload.created_at),
+        updatedAt: new Date(payload.updated_at),
+    };
+};
+exports.parseWorkflowRun = parseWorkflowRun;
+const getWorkflowDuration = (workflowRun) => {
+    return ((workflowRun.updatedAt.getTime() - workflowRun.createdAt.getTime()) / 1000);
+};
+exports.getWorkflowDuration = getWorkflowDuration;
+
+
+/***/ }),
+
 /***/ 180:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
@@ -59,69 +129,42 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.sendMetrics = void 0;
+exports.getTags = exports.sendMetrics = void 0;
 const github_1 = __nccwpck_require__(438);
-const node_fetch_1 = __importDefault(__nccwpck_require__(467));
+const datadog_1 = __nccwpck_require__(401);
+const github_2 = __nccwpck_require__(928);
 const sendMetrics = (inputs) => __awaiter(void 0, void 0, void 0, function* () {
-    var _a, _b;
-    const workflowRun = parseWorkflowRun(github_1.context.payload.workflow_run);
-    const duration = getDuration(workflowRun);
+    const workflowRun = github_2.parseWorkflowRun(github_1.context.payload.workflow_run);
+    const duration = github_2.getWorkflowDuration(workflowRun);
+    const point = [workflowRun.createdAt.getTime() / 1000, duration];
+    const tags = exports.getTags(github_1.context, workflowRun);
     const metricName = 'github.actions.workflow_duration';
-    const body = {
+    const metrics = {
         series: [
             {
                 host: 'github.com',
                 metric: metricName,
-                points: [[workflowRun.createdAt.getTime() / 1000, duration]],
-                tags: [
-                    `repository_owner:${(_a = github_1.context.payload.repository) === null || _a === void 0 ? void 0 : _a.owner.login}`,
-                    `repository_name:${(_b = github_1.context.payload.repository) === null || _b === void 0 ? void 0 : _b.name}`,
-                    `workflow_name:${workflowRun.name}`,
-                    `event:${workflowRun.event}`,
-                    `conclusion:${workflowRun.conclusion}`,
-                    `branch:${workflowRun.headBranch}`,
-                ],
+                points: [point],
+                tags,
             },
         ],
     };
-    const res = yield node_fetch_1.default(`https://api.datadoghq.com/api/v1/series?api_key=${inputs.datadogApiKey}`, {
-        method: 'post',
-        headers: {
-            'Content-Type': 'application/json',
-            'DD-API-KEY': inputs.datadogApiKey,
-        },
-        body: JSON.stringify(body),
-    });
-    if (res.status !== 202) {
-        const text = yield res.text();
-        console.log(text); // eslint-disable-line no-console
-        throw new Error(`Error response from Datadog: ${res.status}`);
-    }
+    yield datadog_1.postMetrics(inputs.datadogApiKey, metrics);
 });
 exports.sendMetrics = sendMetrics;
-const parseWorkflowRun = (payload) => {
-    return {
-        id: payload.id,
-        url: payload.url,
-        runNumber: payload.run_number,
-        workflowId: payload.workflow_id,
-        workflowUrl: payload.workflow_url,
-        name: payload.name,
-        event: payload.event,
-        status: payload.status,
-        conclusion: payload.conclusion,
-        headBranch: payload.head_branch,
-        createdAt: new Date(payload.created_at),
-        updatedAt: new Date(payload.updated_at),
-    };
+const getTags = (githubContext, workflowRun) => {
+    var _a, _b;
+    return [
+        `repository_owner:${(_a = githubContext.payload.repository) === null || _a === void 0 ? void 0 : _a.owner.login}`,
+        `repository_name:${(_b = githubContext.payload.repository) === null || _b === void 0 ? void 0 : _b.name}`,
+        `workflow_name:${workflowRun.name}`,
+        `event:${workflowRun.event}`,
+        `conclusion:${workflowRun.conclusion}`,
+        `branch:${workflowRun.headBranch}`,
+    ];
 };
-const getDuration = (workflowRun) => {
-    return ((workflowRun.updatedAt.getTime() - workflowRun.createdAt.getTime()) / 1000);
-};
+exports.getTags = getTags;
 
 
 /***/ }),
