@@ -1,6 +1,11 @@
 import { getInputs } from './inputs';
 import { sendMetrics } from './sendMetrics';
+import core from '@actions/core';
 
 (async () => {
-  await sendMetrics(getInputs());
+  try {
+    await sendMetrics(getInputs());
+  } catch (err) {
+    core.setFailed(err);
+  }
 })();

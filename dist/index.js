@@ -41,12 +41,21 @@ exports.postMetrics = postMetrics;
 /***/ }),
 
 /***/ 928:
-/***/ ((__unused_webpack_module, exports) => {
+/***/ (function(__unused_webpack_module, exports) {
 
 "use strict";
 
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.getWorkflowDuration = exports.parseWorkflowRun = void 0;
+exports.getActionsBillingData = exports.getWorkflowDuration = exports.parseWorkflowRun = void 0;
 const parseWorkflowRun = (payload) => {
     return {
         id: payload.id,
@@ -68,6 +77,19 @@ const getWorkflowDuration = (workflowRun) => {
     return ((workflowRun.updatedAt.getTime() - workflowRun.createdAt.getTime()) / 1000);
 };
 exports.getWorkflowDuration = getWorkflowDuration;
+const getActionsBillingData = ({ context, octokit, }) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a;
+    const owner = (_a = context.payload.repository) === null || _a === void 0 ? void 0 : _a.owner.login;
+    if ('organization' in context.payload) {
+        const res = yield octokit.request('GET /orgs/{org}/settings/billing/actions', { org: owner });
+        return res.data;
+    }
+    else {
+        const res = yield octokit.request('GET /users/{username}/settings/billing/actions', { username: owner });
+        return res.data;
+    }
+});
+exports.getActionsBillingData = getActionsBillingData;
 
 
 /***/ }),
@@ -81,9 +103,15 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.getInputs = void 0;
 const core_1 = __nccwpck_require__(186);
 const getInputs = () => {
+    const githubToken = core_1.getInput('github-token');
     const datadogApiKey = core_1.getInput('datadog-api-key', { required: true });
+    const enableWorkflowMetrics = core_1.getInput('enable-workflow-metrics', { required: true }) === 'true';
+    const enableOwnerMetrics = core_1.getInput('enable-billing-metrics', { required: true }) === 'true';
     return {
+        githubToken,
         datadogApiKey,
+        enableWorkflowMetrics,
+        enableBillingMetrics: enableOwnerMetrics,
     };
 };
 exports.getInputs = getInputs;
@@ -105,11 +133,20 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 const inputs_1 = __nccwpck_require__(180);
 const sendMetrics_1 = __nccwpck_require__(966);
+const core_1 = __importDefault(__nccwpck_require__(186));
 (() => __awaiter(void 0, void 0, void 0, function* () {
-    yield sendMetrics_1.sendMetrics(inputs_1.getInputs());
+    try {
+        yield sendMetrics_1.sendMetrics(inputs_1.getInputs());
+    }
+    catch (err) {
+        core_1.default.setFailed(err);
+    }
 }))();
 
 
@@ -130,15 +167,26 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.getTags = exports.sendMetrics = void 0;
+exports.getWorkflowTags = exports.sendMetrics = void 0;
 const github_1 = __nccwpck_require__(438);
+const core_1 = __nccwpck_require__(762);
 const datadog_1 = __nccwpck_require__(401);
 const github_2 = __nccwpck_require__(928);
 const sendMetrics = (inputs) => __awaiter(void 0, void 0, void 0, function* () {
+    const octokit = new core_1.Octokit({ auth: inputs.githubToken });
     const workflowRun = github_2.parseWorkflowRun(github_1.context.payload.workflow_run);
+    if (inputs.enableWorkflowMetrics) {
+        yield sendWorkflowMetrics({ inputs, workflowRun });
+    }
+    if (inputs.enableBillingMetrics) {
+        yield sendOwnerMetrics({ octokit, inputs });
+    }
+});
+exports.sendMetrics = sendMetrics;
+const sendWorkflowMetrics = ({ inputs, workflowRun, }) => __awaiter(void 0, void 0, void 0, function* () {
     const duration = github_2.getWorkflowDuration(workflowRun);
     const point = [workflowRun.createdAt.getTime() / 1000, duration];
-    const tags = exports.getTags(github_1.context, workflowRun);
+    const tags = exports.getWorkflowTags(github_1.context, workflowRun);
     const metricName = 'github.actions.workflow_duration';
     const metrics = {
         series: [
@@ -147,13 +195,13 @@ const sendMetrics = (inputs) => __awaiter(void 0, void 0, void 0, function* () {
                 metric: metricName,
                 points: [point],
                 tags,
+                type: 'gauge',
             },
         ],
     };
-    yield datadog_1.postMetrics(inputs.datadogApiKey, metrics);
+    return yield datadog_1.postMetrics(inputs.datadogApiKey, metrics);
 });
-exports.sendMetrics = sendMetrics;
-const getTags = (githubContext, workflowRun) => {
+const getWorkflowTags = (githubContext, workflowRun) => {
     var _a, _b;
     return [
         `repository_owner:${(_a = githubContext.payload.repository) === null || _a === void 0 ? void 0 : _a.owner.login}`,
@@ -164,7 +212,56 @@ const getTags = (githubContext, workflowRun) => {
         `branch:${workflowRun.headBranch}`,
     ];
 };
-exports.getTags = getTags;
+exports.getWorkflowTags = getWorkflowTags;
+const sendOwnerMetrics = ({ octokit, inputs, }) => __awaiter(void 0, void 0, void 0, function* () {
+    const now = new Date();
+    const tags = getOwnerTags(github_1.context);
+    const billingData = yield github_2.getActionsBillingData({ context: github_1.context, octokit });
+    return yield datadog_1.postMetrics(inputs.datadogApiKey, actionsBillingToMetrics({ now, tags, billingData }));
+});
+const getOwnerTags = (githubContext) => {
+    var _a;
+    return [`repository_owner:${(_a = githubContext.payload.repository) === null || _a === void 0 ? void 0 : _a.owner.login}`];
+};
+const actionsBillingToMetrics = ({ now, tags, billingData, }) => {
+    const breakdownSeries = Object.entries(billingData.minutes_used_breakdown).map(([key, usage]) => {
+        return {
+            host: 'github.com',
+            metric: 'github.actions.billing.minutes_used_breakdown',
+            points: [[now.getTime() / 1000, usage]],
+            tags: [...tags, `os:${key}`],
+            type: 'gauge',
+        };
+    });
+    return {
+        series: [
+            {
+                host: 'github.com',
+                metric: 'github.actions.billing.total_minutes_used',
+                points: [[now.getTime() / 1000, billingData.total_minutes_used]],
+                tags,
+                type: 'gauge',
+            },
+            {
+                host: 'github.com',
+                metric: 'github.actions.billing.total_paid_minutes_used',
+                points: [
+                    [now.getTime() / 1000, Number(billingData.total_paid_minutes_used)],
+                ],
+                tags,
+                type: 'gauge',
+            },
+            {
+                host: 'github.com',
+                metric: 'github.actions.billing.included_minutes',
+                points: [[now.getTime() / 1000, billingData.included_minutes]],
+                tags,
+                type: 'gauge',
+            },
+            ...breakdownSeries,
+        ],
+    };
+};
 
 
 /***/ }),

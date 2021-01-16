@@ -4,16 +4,17 @@ export interface Metrics {
   series: Metric[];
 }
 
-interface Metric {
+export interface Metric {
   host?: string;
   metric: string;
   points: MetricPoint[];
   tags?: string[];
+  type?: 'count' | 'gauge' | 'rate';
 }
 
 export type MetricPoint = [number, number];
 
-type PostMetricsResult = {
+export type PostMetricsResult = {
   response: Response;
 };
 

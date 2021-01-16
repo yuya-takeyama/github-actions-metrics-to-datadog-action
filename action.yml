@@ -5,9 +5,20 @@ branding:
   icon: 'bar-chart'
   color: 'purple'
 inputs:
+  github-token:
+    required: false
+    description: 'GitHub API token'
   datadog-api-key:
     required: true
     description: 'Datadog API key'
+  enable-workflow-metrics:
+    required: false
+    description: 'Set "true" to send workflow metrics'
+    default: 'false'
+  enable-billing-metrics:
+    required: false
+    description: 'Set "true" to send billing metrics'
+    default: 'false'
 runs:
   using: 'node12'
   main: 'dist/index.js'

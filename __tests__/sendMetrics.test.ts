@@ -1,4 +1,4 @@
-import { getTags } from '../src/sendMetrics';
+import { getWorkflowTags } from '../src/sendMetrics';
 import { WorkflowRun } from '../src/github';
 import { Context } from '@actions/github/lib/context';
 
@@ -29,7 +29,7 @@ describe('#getTags', () => {
       createdAt: new Date(),
       updatedAt: new Date(),
     };
-    const tags = getTags(context, workflowRun);
+    const tags = getWorkflowTags(context, workflowRun);
     expect(tags).toEqual([
       'repository_owner:yuya-takeyama',
       'repository_name:testrepo',
