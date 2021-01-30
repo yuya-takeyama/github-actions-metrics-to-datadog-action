@@ -133,19 +133,16 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 const inputs_1 = __nccwpck_require__(180);
 const sendMetrics_1 = __nccwpck_require__(966);
-const core_1 = __importDefault(__nccwpck_require__(186));
+const core_1 = __nccwpck_require__(186);
 (() => __awaiter(void 0, void 0, void 0, function* () {
     try {
         yield sendMetrics_1.sendMetrics(inputs_1.getInputs());
     }
     catch (err) {
-        core_1.default.setFailed(err);
+        core_1.setFailed(err);
     }
 }))();
 
