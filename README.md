@@ -28,6 +28,26 @@ jobs:
           enable-billing-metrics: 'true'
 ```
 
+### Collect billing metrics periodically
+
+You can collect billing metrics using `schedule` event too:
+
+```yaml
+on:
+  schedule:
+    - cron: '*/15 * * * *'
+
+jobs:
+  actions-billing-metrics:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: yuya-takeyama/github-actions-metrics-to-datadog-action@v0.3.0
+        with:
+          github-token: ${{ secrets.OWNER_GITHUB_TOKEN }}
+          datadog-api-key: ${{ secrets.DATADOG_API_KEY }}
+          enable-billing-metrics: 'true'
+```
+
 ## Inputs
 
 | Name                      | Required | Default | Description                         |
