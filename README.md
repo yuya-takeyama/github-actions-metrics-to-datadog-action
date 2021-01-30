@@ -1,5 +1,5 @@
 <p align="center">
-  <a href="https://github.com/yuya-takeyama/github-actions-metrics-to-datadog-action"><img alt="typescript-action status" src="https://github.com/yuya-takeyama/github-actions-metrics-to-datadog-action/workflows/build-test/badge.svg"></a>
+  <a href="https://github.com/yuya-takeyama/github-actions-metrics-to-datadog-action"><img alt="github-actions-metrics-to-datadog-action status" src="https://github.com/yuya-takeyama/github-actions-metrics-to-datadog-action/workflows/build-test/badge.svg"></a>
 </p>
 
 # GitHub Actions metrics to Datadog
