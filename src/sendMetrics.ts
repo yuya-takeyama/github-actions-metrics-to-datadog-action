@@ -21,11 +21,11 @@ import {
 
 export const sendMetrics = async (inputs: Inputs): Promise<void> => {
   const octokit = new Octokit({ auth: inputs.githubToken });
-  const workflowRun = parseWorkflowRun(
-    context.payload.workflow_run as WorkflowRunPayload,
-  );
 
-  if (inputs.enableWorkflowMetrics) {
+  if (inputs.enableWorkflowMetrics && context.payload.workflow_run) {
+    const workflowRun = parseWorkflowRun(
+      context.payload.workflow_run as WorkflowRunPayload,
+    );
     await sendWorkflowMetrics({ inputs, workflowRun });
   }
   if (inputs.enableBillingMetrics) {

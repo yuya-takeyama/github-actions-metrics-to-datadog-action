@@ -171,8 +171,8 @@ const datadog_1 = __nccwpck_require__(401);
 const github_2 = __nccwpck_require__(928);
 const sendMetrics = (inputs) => __awaiter(void 0, void 0, void 0, function* () {
     const octokit = new core_1.Octokit({ auth: inputs.githubToken });
-    const workflowRun = github_2.parseWorkflowRun(github_1.context.payload.workflow_run);
-    if (inputs.enableWorkflowMetrics) {
+    if (inputs.enableWorkflowMetrics && github_1.context.payload.workflow_run) {
+        const workflowRun = github_2.parseWorkflowRun(github_1.context.payload.workflow_run);
         yield sendWorkflowMetrics({ inputs, workflowRun });
     }
     if (inputs.enableBillingMetrics) {
