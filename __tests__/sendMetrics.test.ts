@@ -6,13 +6,9 @@ describe('#getTags', () => {
   it('returns tags', () => {
     // @ts-ignore
     const context = {
-      payload: {
-        repository: {
-          owner: {
-            login: 'yuya-takeyama',
-          },
-          name: 'testrepo',
-        },
+      repo: {
+        owner: 'yuya-takeyama',
+        repo: 'testrepo',
       },
     } as Context;
     const workflowRun: WorkflowRun = {

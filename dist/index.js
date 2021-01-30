@@ -78,18 +78,23 @@ const getWorkflowDuration = (workflowRun) => {
 };
 exports.getWorkflowDuration = getWorkflowDuration;
 const getActionsBillingData = ({ context, octokit, }) => __awaiter(void 0, void 0, void 0, function* () {
-    var _a;
-    const owner = (_a = context.payload.repository) === null || _a === void 0 ? void 0 : _a.owner.login;
-    if ('organization' in context.payload) {
-        const res = yield octokit.request('GET /orgs/{org}/settings/billing/actions', { org: owner });
-        return res.data;
-    }
-    else {
-        const res = yield octokit.request('GET /users/{username}/settings/billing/actions', { username: owner });
-        return res.data;
-    }
+    const res = yield requestActionsBilling(context, octokit);
+    return res.data;
 });
 exports.getActionsBillingData = getActionsBillingData;
+const requestActionsBilling = (context, octokit) => __awaiter(void 0, void 0, void 0, function* () {
+    const owner = context.repo.owner;
+    try {
+        return yield octokit.request('GET /orgs/{org}/settings/billing/actions', {
+            org: owner,
+        });
+    }
+    catch (err) {
+        return yield octokit.request('GET /users/{username}/settings/billing/actions', {
+            username: owner,
+        });
+    }
+});
 
 
 /***/ }),
@@ -199,10 +204,9 @@ const sendWorkflowMetrics = ({ inputs, workflowRun, }) => __awaiter(void 0, void
     return yield datadog_1.postMetrics(inputs.datadogApiKey, metrics);
 });
 const getWorkflowTags = (githubContext, workflowRun) => {
-    var _a, _b;
     return [
-        `repository_owner:${(_a = githubContext.payload.repository) === null || _a === void 0 ? void 0 : _a.owner.login}`,
-        `repository_name:${(_b = githubContext.payload.repository) === null || _b === void 0 ? void 0 : _b.name}`,
+        `repository_owner:${githubContext.repo.owner}`,
+        `repository_name:${githubContext.repo.repo}`,
         `workflow_name:${workflowRun.name}`,
         `event:${workflowRun.event}`,
         `conclusion:${workflowRun.conclusion}`,
@@ -217,8 +221,7 @@ const sendOwnerMetrics = ({ octokit, inputs, }) => __awaiter(void 0, void 0, voi
     return yield datadog_1.postMetrics(inputs.datadogApiKey, actionsBillingToMetrics({ now, tags, billingData }));
 });
 const getOwnerTags = (githubContext) => {
-    var _a;
-    return [`repository_owner:${(_a = githubContext.payload.repository) === null || _a === void 0 ? void 0 : _a.owner.login}`];
+    return [`repository_owner:${githubContext.repo.owner}`];
 };
 const actionsBillingToMetrics = ({ now, tags, billingData, }) => {
     const breakdownSeries = Object.entries(billingData.minutes_used_breakdown).map(([key, usage]) => {

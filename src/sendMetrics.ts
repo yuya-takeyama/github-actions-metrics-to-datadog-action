@@ -66,8 +66,8 @@ export const getWorkflowTags = (
   workflowRun: WorkflowRun,
 ): string[] => {
   return [
-    `repository_owner:${githubContext.payload.repository?.owner.login}`,
-    `repository_name:${githubContext.payload.repository?.name}`,
+    `repository_owner:${githubContext.repo.owner}`,
+    `repository_name:${githubContext.repo.repo}`,
     `workflow_name:${workflowRun.name}`,
     `event:${workflowRun.event}`,
     `conclusion:${workflowRun.conclusion}`,
@@ -95,7 +95,7 @@ const sendOwnerMetrics = async ({
 };
 
 const getOwnerTags = (githubContext: Context): string[] => {
-  return [`repository_owner:${githubContext.payload.repository?.owner.login}`];
+  return [`repository_owner:${githubContext.repo.owner}`];
 };
 
 type actionsBillingToMetricsParams = {
