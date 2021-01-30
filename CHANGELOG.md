@@ -1,6 +1,12 @@
 # Change Log
 
+## [0.2.1] - 2021-01-30
+
+### Bug Fixes
+
 ## [0.2.0] - 2021-01-17
+
+### Added
 
 * Implement billing metrics
 
