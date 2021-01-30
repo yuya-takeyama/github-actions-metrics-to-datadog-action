@@ -4,6 +4,8 @@
 
 ### Bug Fixes
 
+* Let workflow run be failed correctly
+
 ## [0.2.0] - 2021-01-17
 
 ### Added
