@@ -32,6 +32,10 @@ export interface WorkflowRun {
   updatedAt: Date;
 }
 
+type BillingResponse =
+  | Endpoints['GET /orgs/{org}/settings/billing/actions']['response']
+  | Endpoints['GET /users/{username}/settings/billing/actions']['response'];
+
 export type BillingData =
   | Endpoints['GET /orgs/{org}/settings/billing/actions']['response']['data']
   | Endpoints['GET /users/{username}/settings/billing/actions']['response']['data'];
@@ -68,18 +72,25 @@ export const getActionsBillingData = async ({
   context,
   octokit,
 }: getOwnerActionsBillingParams): Promise<BillingData> => {
-  const owner = context.payload.repository?.owner.login as string;
-  if ('organization' in context.payload) {
-    const res = await octokit.request(
-      'GET /orgs/{org}/settings/billing/actions',
-      { org: owner },
-    );
-    return res.data;
-  } else {
-    const res = await octokit.request(
+  const res = await requestActionsBilling(context, octokit);
+  return res.data;
+};
+
+const requestActionsBilling = async (
+  context: Context,
+  octokit: Octokit,
+): Promise<BillingResponse> => {
+  const owner = context.repo.owner;
+  try {
+    return await octokit.request('GET /orgs/{org}/settings/billing/actions', {
+      org: owner,
+    });
+  } catch (err) {
+    return await octokit.request(
       'GET /users/{username}/settings/billing/actions',
-      { username: owner },
+      {
+        username: owner,
+      },
     );
-    return res.data;
   }
 };

@@ -21,11 +21,11 @@ import {
 
 export const sendMetrics = async (inputs: Inputs): Promise<void> => {
   const octokit = new Octokit({ auth: inputs.githubToken });
-  const workflowRun = parseWorkflowRun(
-    context.payload.workflow_run as WorkflowRunPayload,
-  );
 
-  if (inputs.enableWorkflowMetrics) {
+  if (inputs.enableWorkflowMetrics && context.payload.workflow_run) {
+    const workflowRun = parseWorkflowRun(
+      context.payload.workflow_run as WorkflowRunPayload,
+    );
     await sendWorkflowMetrics({ inputs, workflowRun });
   }
   if (inputs.enableBillingMetrics) {
@@ -66,8 +66,8 @@ export const getWorkflowTags = (
   workflowRun: WorkflowRun,
 ): string[] => {
   return [
-    `repository_owner:${githubContext.payload.repository?.owner.login}`,
-    `repository_name:${githubContext.payload.repository?.name}`,
+    `repository_owner:${githubContext.repo.owner}`,
+    `repository_name:${githubContext.repo.repo}`,
     `workflow_name:${workflowRun.name}`,
     `event:${workflowRun.event}`,
     `conclusion:${workflowRun.conclusion}`,
@@ -95,7 +95,7 @@ const sendOwnerMetrics = async ({
 };
 
 const getOwnerTags = (githubContext: Context): string[] => {
-  return [`repository_owner:${githubContext.payload.repository?.owner.login}`];
+  return [`repository_owner:${githubContext.repo.owner}`];
 };
 
 type actionsBillingToMetricsParams = {
