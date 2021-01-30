@@ -1,5 +1,11 @@
 # Change Log
 
+## [0.3.0] - 2021-01-30
+
+### Added
+
+* Now billing metrics can be collected using `schedule` event too
+
 ## [0.2.1] - 2021-01-30
 
 ### Bug Fixes
