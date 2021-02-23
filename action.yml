@@ -17,7 +17,11 @@ inputs:
     default: 'false'
   enable-billing-metrics:
     required: false
-    description: 'Set "true" to send billing metrics'
+    description: 'Set "true" to send User/Organization billing metrics'
+    default: 'false'
+  enable-repository-workflows-billing-metrics:
+    required: false
+    description: 'Set "true" to send Repository Workflows billing metrics'
     default: 'false'
 runs:
   using: 'node12'

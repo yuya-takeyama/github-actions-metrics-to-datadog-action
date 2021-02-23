@@ -14,9 +14,12 @@ import {
   getWorkflowDuration,
   parseWorkflowRun,
   BillingData,
+  Workflow,
   WorkflowRun,
   WorkflowRunPayload,
+  RepositoryWorkflowBilling,
   getActionsBillingData,
+  getRepositoryWorkflowsAndBillings,
 } from './github';
 
 export const sendMetrics = async (inputs: Inputs): Promise<void> => {
@@ -30,6 +33,9 @@ export const sendMetrics = async (inputs: Inputs): Promise<void> => {
   }
   if (inputs.enableBillingMetrics) {
     await sendOwnerMetrics({ octokit, inputs });
+  }
+  if (inputs.enableRepositoryWorkflowsBillingMetrics) {
+    await sendRepositoryWorkflowsBillingMetrics({ octokit, inputs });
   }
 };
 
@@ -148,4 +154,71 @@ const actionsBillingToMetrics = ({
       ...breakdownSeries,
     ],
   };
+};
+
+type sendRepositoryWorkflowsBillingMetricsParams = {
+  inputs: Inputs;
+  octokit: Octokit;
+};
+
+const sendRepositoryWorkflowsBillingMetrics = async ({
+  inputs,
+  octokit,
+}: sendRepositoryWorkflowsBillingMetricsParams): Promise<PostMetricsResult> => {
+  const now = new Date();
+  const workflowsAndBillings = await getRepositoryWorkflowsAndBillings(
+    context,
+    octokit,
+  );
+  const tags = getRepositoryWorkflowsTags();
+
+  return await postMetrics(
+    inputs.datadogApiKey,
+    repositoryWorkflowsBillingMetrics({
+      workflowsAndBillings,
+      now,
+      tags,
+    }),
+  );
+};
+
+type repositoryWorkflowsBillingMetricsParams = {
+  workflowsAndBillings: [Workflow, RepositoryWorkflowBilling][];
+  now: Date;
+  tags: string[];
+};
+
+const repositoryWorkflowsBillingMetrics = ({
+  workflowsAndBillings,
+  now,
+  tags,
+}: repositoryWorkflowsBillingMetricsParams): Metrics => {
+  const nestedMetrics: Metric[][] = workflowsAndBillings.map(
+    ([workflow, billing]) => {
+      return Object.entries(billing).map(([key, data]) => {
+        const totalMs = data?.total_ms || 0;
+        return {
+          host: 'github.com',
+          metric: 'github.actions.billing.repository_workflow_total_ms',
+          points: [[now.getTime() / 1000, totalMs]],
+          tags: [...tags, `workflow_name:${workflow.name}`, `os:${key}`],
+          type: 'gauge',
+        };
+      });
+    },
+  );
+  const flatMetrics = nestedMetrics.reduce((acc, metrics) => {
+    for (const metric of metrics) {
+      acc.push(metric);
+    }
+    return acc;
+  }, []);
+  return { series: flatMetrics };
+};
+
+const getRepositoryWorkflowsTags = (): string[] => {
+  return [
+    `repository_owner:${context.repo.owner}`,
+    `repository_name:${context.repo.repo}`,
+  ];
 };
