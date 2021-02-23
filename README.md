@@ -26,6 +26,7 @@ jobs:
           datadog-api-key: ${{ secrets.DATADOG_API_KEY }}
           enable-workflow-metrics: 'true'
           enable-billing-metrics: 'true'
+          enable-repository-workflows-billing-metrics: 'true'
 ```
 
 ### Collect billing metrics periodically
@@ -46,20 +47,22 @@ jobs:
           github-token: ${{ secrets.OWNER_GITHUB_TOKEN }}
           datadog-api-key: ${{ secrets.DATADOG_API_KEY }}
           enable-billing-metrics: 'true'
+          enable-repository-workflows-billing-metrics: 'true'
 ```
 
 ## Inputs
 
-| Name                      | Required | Default | Description                         |
-|---------------------------|----------|---------|-------------------------------------|
-| `github-token`            | `false`  |         | GitHub API token                    |
-| `datadog-api-key`         | `true`   |         | Datadog API key                     |
-| `enable-workflow-metrics` | `true`   |         | Set "true" to send workflow metrics |
-| `enable-billing-metrics`  | `true`   |         | Set "true" to send billing metrics  |
+| Name                                          | Required | Default | Description                                             |
+|-----------------------------------------------|----------|---------|---------------------------------------------------------|
+| `github-token`                                | `false`  |         | GitHub API token                                        |
+| `datadog-api-key`                             | `true`   |         | Datadog API key                                         |
+| `enable-workflow-metrics`                     | `true`   |         | Set "true" to send workflow metrics                     |
+| `enable-billing-metrics`                      | `true`   |         | Set "true" to send User/Organization billing metrics    |
+| `enable-repository-workflows-billing-metrics` | `true`   |         | Set "true" to send Repository Workflows billing metrics |
 
 ### Required scopes for `github-token`
 
-It's required when `enable-billing-metrics` is true.
+It's required when `enable-billing-metrics` or `enable-repository-workflows-billing-metrics` is true.
 
 `secrets.GITHUB_TOKEN` doesn't work for it.
 
@@ -76,7 +79,10 @@ Details: https://docs.github.com/en/rest/reference/billing#get-github-actions-bi
 
 Also, the token must be created by a user who has ownership for the organization.
 
-Details: https://docs.github.com/en/rest/reference/billing#get-github-actions-billing-for-an-organization
+Details:
+
+* https://docs.github.com/en/rest/reference/billing#get-github-actions-billing-for-an-organization
+* https://docs.github.com/en/rest/reference/actions#get-workflow-usage
 
 ## Metrics
 
@@ -90,3 +96,7 @@ Details: https://docs.github.com/en/rest/reference/billing#get-github-actions-bi
 * `github.actions.billing.total_paid_minutes_used`
 * `github.actions.billing.included_minutes`
 * `github.actions.billing.minutes_used_breakdown`
+
+### Repository workflows billing metrics
+
+* `github.actions.billing.repository_workflow_total_ms`
