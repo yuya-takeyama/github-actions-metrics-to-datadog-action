@@ -94,3 +94,39 @@ const requestActionsBilling = async (
     );
   }
 };
+
+export type Workflow = Endpoints['GET /repos/{owner}/{repo}/actions/workflows']['response']['data']['workflows'][0];
+export type RepositoryWorkflowBilling = {
+  UBUNTU?: { total_ms: number };
+  MACOS?: { total_ms: number };
+  WINDOWS?: { total_ms: number };
+};
+
+export const getRepositoryWorkflowsAndBillings = async (
+  context: Context,
+  octokit: Octokit,
+): Promise<[Workflow, RepositoryWorkflowBilling][]> => {
+  const owner = context.repo.owner;
+  const repo = context.repo.repo;
+  const workflowsRes = await octokit.request(
+    'GET /repos/{owner}/{repo}/actions/workflows',
+    { owner, repo },
+  );
+  const workflows = workflowsRes.data.workflows;
+  const billingPromises: Promise<
+    [Workflow, RepositoryWorkflowBilling]
+  >[] = workflows.map(async workflow => {
+    return new Promise(async resolved => {
+      const res = await octokit.request(
+        'GET /repos/{owner}/{repo}/actions/workflows/{workflow_id}/timing',
+        {
+          owner,
+          repo,
+          workflow_id: workflow.id,
+        },
+      );
+      resolved([workflow, res.data.billable]);
+    });
+  });
+  return Promise.all(billingPromises);
+};

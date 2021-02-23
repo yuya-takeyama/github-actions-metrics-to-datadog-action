@@ -5,6 +5,7 @@ export interface Inputs {
   datadogApiKey: string;
   enableWorkflowMetrics: boolean;
   enableBillingMetrics: boolean;
+  enableRepositoryWorkflowsBillingMetrics: boolean;
 }
 
 export const getInputs = (): Inputs => {
@@ -14,11 +15,16 @@ export const getInputs = (): Inputs => {
     getInput('enable-workflow-metrics', { required: true }) === 'true';
   const enableOwnerMetrics =
     getInput('enable-billing-metrics', { required: true }) === 'true';
+  const enableRepositoryWorkflowsBillingMetrics =
+    getInput('enable-repository-workflows-billing-metrics', {
+      required: true,
+    }) === 'true';
 
   return {
     githubToken,
     datadogApiKey,
     enableWorkflowMetrics,
     enableBillingMetrics: enableOwnerMetrics,
+    enableRepositoryWorkflowsBillingMetrics,
   };
 };

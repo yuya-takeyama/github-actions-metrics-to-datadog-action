@@ -1,4 +1,5 @@
 import fetch, { Response } from 'node-fetch';
+import { isDebug, debug } from '@actions/core';
 
 export interface Metrics {
   series: Metric[];
@@ -22,6 +23,14 @@ export const postMetrics = async (
   apiKey: string,
   metrics: Metrics,
 ): Promise<PostMetricsResult> => {
+  if (isDebug()) {
+    debug(
+      JSON.stringify({
+        name: 'postMetrics',
+        metrics,
+      }),
+    );
+  }
   const res = await fetch(
     `https://api.datadoghq.com/api/v1/series?api_key=${apiKey}`,
     {

@@ -22,7 +22,14 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.postMetrics = void 0;
 const node_fetch_1 = __importDefault(__nccwpck_require__(467));
+const core_1 = __nccwpck_require__(186);
 const postMetrics = (apiKey, metrics) => __awaiter(void 0, void 0, void 0, function* () {
+    if (core_1.isDebug()) {
+        core_1.debug(JSON.stringify({
+            name: 'postMetrics',
+            metrics,
+        }));
+    }
     const res = yield node_fetch_1.default(`https://api.datadoghq.com/api/v1/series?api_key=${apiKey}`, {
         method: 'post',
         headers: {
@@ -55,7 +62,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.getActionsBillingData = exports.getWorkflowDuration = exports.parseWorkflowRun = void 0;
+exports.getRepositoryWorkflowsAndBillings = exports.getActionsBillingData = exports.getWorkflowDuration = exports.parseWorkflowRun = void 0;
 const parseWorkflowRun = (payload) => {
     return {
         id: payload.id,
@@ -95,6 +102,24 @@ const requestActionsBilling = (context, octokit) => __awaiter(void 0, void 0, vo
         });
     }
 });
+const getRepositoryWorkflowsAndBillings = (context, octokit) => __awaiter(void 0, void 0, void 0, function* () {
+    const owner = context.repo.owner;
+    const repo = context.repo.repo;
+    const workflowsRes = yield octokit.request('GET /repos/{owner}/{repo}/actions/workflows', { owner, repo });
+    const workflows = workflowsRes.data.workflows;
+    const billingPromises = workflows.map((workflow) => __awaiter(void 0, void 0, void 0, function* () {
+        return new Promise((resolved) => __awaiter(void 0, void 0, void 0, function* () {
+            const res = yield octokit.request('GET /repos/{owner}/{repo}/actions/workflows/{workflow_id}/timing', {
+                owner,
+                repo,
+                workflow_id: workflow.id,
+            });
+            resolved([workflow, res.data.billable]);
+        }));
+    }));
+    return Promise.all(billingPromises);
+});
+exports.getRepositoryWorkflowsAndBillings = getRepositoryWorkflowsAndBillings;
 
 
 /***/ }),
@@ -112,11 +137,15 @@ const getInputs = () => {
     const datadogApiKey = core_1.getInput('datadog-api-key', { required: true });
     const enableWorkflowMetrics = core_1.getInput('enable-workflow-metrics', { required: true }) === 'true';
     const enableOwnerMetrics = core_1.getInput('enable-billing-metrics', { required: true }) === 'true';
+    const enableRepositoryWorkflowsBillingMetrics = core_1.getInput('enable-repository-workflows-billing-metrics', {
+        required: true,
+    }) === 'true';
     return {
         githubToken,
         datadogApiKey,
         enableWorkflowMetrics,
         enableBillingMetrics: enableOwnerMetrics,
+        enableRepositoryWorkflowsBillingMetrics,
     };
 };
 exports.getInputs = getInputs;
@@ -182,6 +211,9 @@ const sendMetrics = (inputs) => __awaiter(void 0, void 0, void 0, function* () {
     }
     if (inputs.enableBillingMetrics) {
         yield sendOwnerMetrics({ octokit, inputs });
+    }
+    if (inputs.enableRepositoryWorkflowsBillingMetrics) {
+        yield sendRepositoryWorkflowsBillingMetrics({ octokit, inputs });
     }
 });
 exports.sendMetrics = sendMetrics;
@@ -261,6 +293,43 @@ const actionsBillingToMetrics = ({ now, tags, billingData, }) => {
             ...breakdownSeries,
         ],
     };
+};
+const sendRepositoryWorkflowsBillingMetrics = ({ inputs, octokit, }) => __awaiter(void 0, void 0, void 0, function* () {
+    const now = new Date();
+    const workflowsAndBillings = yield github_2.getRepositoryWorkflowsAndBillings(github_1.context, octokit);
+    const tags = getRepositoryWorkflowsTags();
+    return yield datadog_1.postMetrics(inputs.datadogApiKey, repositoryWorkflowsBillingMetrics({
+        workflowsAndBillings,
+        now,
+        tags,
+    }));
+});
+const repositoryWorkflowsBillingMetrics = ({ workflowsAndBillings, now, tags, }) => {
+    const nestedMetrics = workflowsAndBillings.map(([workflow, billing]) => {
+        return Object.entries(billing).map(([key, data]) => {
+            const totalMs = (data === null || data === void 0 ? void 0 : data.total_ms) || 0;
+            return {
+                host: 'github.com',
+                metric: 'github.actions.billing.repository_workflow_total_ms',
+                points: [[now.getTime() / 1000, totalMs]],
+                tags: [...tags, `workflow_name:${workflow.name}`, `os:${key}`],
+                type: 'gauge',
+            };
+        });
+    });
+    const flatMetrics = nestedMetrics.reduce((acc, metrics) => {
+        for (const metric of metrics) {
+            acc.push(metric);
+        }
+        return acc;
+    }, []);
+    return { series: flatMetrics };
+};
+const getRepositoryWorkflowsTags = () => {
+    return [
+        `repository_owner:${github_1.context.repo.owner}`,
+        `repository_name:${github_1.context.repo.repo}`,
+    ];
 };
 
 
