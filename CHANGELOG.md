@@ -1,5 +1,11 @@
 # Change Log
 
+## [0.4.0] - 2021-02-23
+
+### Added
+
+* Implement repository workflows billing metrics
+
 ## [0.3.0] - 2021-01-30
 
 ### Added
