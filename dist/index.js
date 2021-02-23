@@ -22,7 +22,14 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.postMetrics = void 0;
 const node_fetch_1 = __importDefault(__nccwpck_require__(467));
+const core_1 = __nccwpck_require__(186);
 const postMetrics = (apiKey, metrics) => __awaiter(void 0, void 0, void 0, function* () {
+    if (core_1.isDebug()) {
+        core_1.debug(JSON.stringify({
+            name: 'postMetrics',
+            metrics,
+        }));
+    }
     const res = yield node_fetch_1.default(`https://api.datadoghq.com/api/v1/series?api_key=${apiKey}`, {
         method: 'post',
         headers: {
