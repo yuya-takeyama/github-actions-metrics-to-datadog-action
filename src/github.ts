@@ -112,7 +112,9 @@ export const getRepositoryWorkflowsAndBillings = async (
     'GET /repos/{owner}/{repo}/actions/workflows',
     { owner, repo },
   );
-  const workflows = workflowsRes.data.workflows;
+  const workflows = workflowsRes.data.workflows.filter(
+    w => w.state === 'active',
+  );
   const billingPromises: Promise<
     [Workflow, RepositoryWorkflowBilling]
   >[] = workflows.map(async workflow => {
