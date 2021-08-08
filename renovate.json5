@@ -1,0 +1,11 @@
+{
+  "extends": [
+    "config:base"
+  ],
+  "automerge": true,
+  "labels": [
+    "renovate:{{depName}}",
+    "renovate:{{depName}}/{{newVersion}}",
+    "datasource:{{datasource}}",
+  ],
+}
