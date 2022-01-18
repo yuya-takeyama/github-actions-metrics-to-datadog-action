@@ -1,6 +1,10 @@
 <p align="center">
-  <a href="https://github.com/yuya-takeyama/github-actions-metrics-to-datadog-action"><img alt="github-actions-metrics-to-datadog-action status" src="https://github.com/yuya-takeyama/github-actions-metrics-to-datadog-action/workflows/build-test/badge.svg"></a>
+  <a href="https://github.com/linux-wizard/github-actions-metrics-to-datadog-action"><img alt="github-actions-metrics-to-datadog-action status" src="https://github.com/linux-wizard/github-actions-metrics-to-datadog-action/workflows/build-test/badge.svg"></a>
+  <a href="https://github.com/pre-commit/pre-commit"><img src="https://img.shields.io/badge/pre--commit-enabled-brightgreen?logo=pre-commit&logoColor=white" alt="pre-commit" style="max-width:100%;"></a>
 </p>
+
+
+
 
 # GitHub Actions metrics to Datadog
 
@@ -20,7 +24,7 @@ jobs:
   actions-metrics:
     runs-on: ubuntu-latest
     steps:
-      - uses: yuya-takeyama/github-actions-metrics-to-datadog-action@v0.5.0
+      - uses: linux-wizard/github-actions-metrics-to-datadog-action@v0.5.0
         with:
           github-token: ${{ secrets.OWNER_GITHUB_TOKEN }}
           datadog-api-key: ${{ secrets.DATADOG_API_KEY }}
@@ -42,7 +46,7 @@ jobs:
   actions-billing-metrics:
     runs-on: ubuntu-latest
     steps:
-      - uses: yuya-takeyama/github-actions-metrics-to-datadog-action@v0.5.0
+      - uses: linux-wizard/github-actions-metrics-to-datadog-action@v0.5.0
         with:
           github-token: ${{ secrets.OWNER_GITHUB_TOKEN }}
           datadog-api-key: ${{ secrets.DATADOG_API_KEY }}
