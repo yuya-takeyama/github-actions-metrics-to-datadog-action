@@ -1,5 +1,11 @@
 # Change Log
 
+## [0.6.0] - 2023-06-27
+
+### Changed
+
+* Update many of dependencies
+
 ## [0.5.0] - 2021-03-25
 
 ### Changed
