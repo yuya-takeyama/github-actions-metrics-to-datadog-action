@@ -23,6 +23,7 @@ export const postMetrics = async (
   apiKey: string,
   metrics: Metrics,
 ): Promise<PostMetricsResult> => {
+  debug('postMetrics()');
   if (isDebug()) {
     debug(
       JSON.stringify({

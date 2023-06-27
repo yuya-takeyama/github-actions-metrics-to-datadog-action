@@ -23,6 +23,7 @@ exports.postMetrics = void 0;
 const node_fetch_1 = __importDefault(__nccwpck_require__(467));
 const core_1 = __nccwpck_require__(2186);
 const postMetrics = (apiKey, metrics) => __awaiter(void 0, void 0, void 0, function* () {
+    (0, core_1.debug)('postMetrics()');
     if ((0, core_1.isDebug)()) {
         (0, core_1.debug)(JSON.stringify({
             name: 'postMetrics',
@@ -47,7 +48,7 @@ exports.postMetrics = postMetrics;
 /***/ }),
 
 /***/ 5928:
-/***/ (function(__unused_webpack_module, exports) {
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
 "use strict";
 
@@ -62,7 +63,9 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.getRepositoryWorkflowsAndBillings = exports.getActionsBillingData = exports.getWorkflowDuration = exports.parseWorkflowRun = void 0;
+const core_1 = __nccwpck_require__(2186);
 const parseWorkflowRun = (payload) => {
+    (0, core_1.debug)('parseWorkflowRun()');
     return {
         id: payload.id,
         url: payload.url,
@@ -80,6 +83,7 @@ const parseWorkflowRun = (payload) => {
 };
 exports.parseWorkflowRun = parseWorkflowRun;
 const getWorkflowDuration = (workflowRun) => {
+    (0, core_1.debug)('getWorkflowDuration()');
     return ((workflowRun.updatedAt.getTime() - workflowRun.createdAt.getTime()) / 1000);
 };
 exports.getWorkflowDuration = getWorkflowDuration;

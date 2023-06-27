@@ -1,6 +1,7 @@
 import { Endpoints } from '@octokit/types';
 import { Context } from '@actions/github/lib/context';
 import { Octokit } from '@octokit/core';
+import { debug } from '@actions/core';
 
 export interface WorkflowRunPayload {
   id: number;
@@ -41,6 +42,7 @@ export type BillingData =
   | Endpoints['GET /users/{username}/settings/billing/actions']['response']['data'];
 
 export const parseWorkflowRun = (payload: WorkflowRunPayload): WorkflowRun => {
+  debug('parseWorkflowRun()');
   return {
     id: payload.id,
     url: payload.url,
@@ -58,6 +60,7 @@ export const parseWorkflowRun = (payload: WorkflowRunPayload): WorkflowRun => {
 };
 
 export const getWorkflowDuration = (workflowRun: WorkflowRun): number => {
+  debug('getWorkflowDuration()');
   return (
     (workflowRun.updatedAt.getTime() - workflowRun.createdAt.getTime()) / 1000
   );
