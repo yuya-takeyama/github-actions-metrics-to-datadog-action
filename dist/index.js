@@ -114,6 +114,7 @@ const getRepositoryWorkflowsAndBillings = (context, octokit) => __awaiter(void 0
     const workflowsRes = yield octokit.request('GET /repos/{owner}/{repo}/actions/workflows', { owner, repo });
     (0, core_1.debug)('octokit.request GET /repos/{owner}/{repo}/actions/workflows finished');
     const workflows = workflowsRes.data.workflows.filter(w => w.state === 'active');
+    (0, core_1.debug)(`# of workflows: ${workflows.length}`);
     const billingPromises = workflows.map((workflow) => __awaiter(void 0, void 0, void 0, function* () {
         return new Promise((resolved) => __awaiter(void 0, void 0, void 0, function* () {
             (0, core_1.debug)('octokit.request GET /repos/{owner}/{repo}/actions/workflows/{workflow_id}/timing');

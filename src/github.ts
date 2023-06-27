@@ -123,6 +123,7 @@ export const getRepositoryWorkflowsAndBillings = async (
   const workflows = workflowsRes.data.workflows.filter(
     w => w.state === 'active',
   );
+  debug(`# of workflows: ${workflows.length}`);
   const billingPromises: Promise<[Workflow, RepositoryWorkflowBilling]>[] =
     workflows.map(async workflow => {
       return new Promise(async resolved => {
