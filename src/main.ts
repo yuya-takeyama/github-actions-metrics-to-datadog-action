@@ -6,6 +6,8 @@ import { setFailed } from '@actions/core';
   try {
     await sendMetrics(getInputs());
   } catch (err) {
-    setFailed(err);
+    const message =
+      err instanceof Error && err.message ? err.message : 'Unknown error';
+    setFailed(message);
   }
 })();
