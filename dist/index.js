@@ -110,15 +110,19 @@ const getRepositoryWorkflowsAndBillings = (context, octokit) => __awaiter(void 0
     (0, core_1.debug)('getRepositoryWorkflowsAndBillings()');
     const owner = context.repo.owner;
     const repo = context.repo.repo;
+    (0, core_1.debug)('octokit.request GET /repos/{owner}/{repo}/actions/workflows');
     const workflowsRes = yield octokit.request('GET /repos/{owner}/{repo}/actions/workflows', { owner, repo });
+    (0, core_1.debug)('octokit.request GET /repos/{owner}/{repo}/actions/workflows finished');
     const workflows = workflowsRes.data.workflows.filter(w => w.state === 'active');
     const billingPromises = workflows.map((workflow) => __awaiter(void 0, void 0, void 0, function* () {
         return new Promise((resolved) => __awaiter(void 0, void 0, void 0, function* () {
+            (0, core_1.debug)('octokit.request GET /repos/{owner}/{repo}/actions/workflows/{workflow_id}/timing');
             const res = yield octokit.request('GET /repos/{owner}/{repo}/actions/workflows/{workflow_id}/timing', {
                 owner,
                 repo,
                 workflow_id: workflow.id,
             });
+            (0, core_1.debug)('octokit.request GET /repos/{owner}/{repo}/actions/workflows/{workflow_id}/timing finished');
             resolved([workflow, res.data.billable]);
         }));
     }));
