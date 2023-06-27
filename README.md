@@ -20,7 +20,7 @@ jobs:
   actions-metrics:
     runs-on: ubuntu-latest
     steps:
-      - uses: yuya-takeyama/github-actions-metrics-to-datadog-action@v0.5.0
+      - uses: yuya-takeyama/github-actions-metrics-to-datadog-action@v0.6.0
         with:
           github-token: ${{ secrets.OWNER_GITHUB_TOKEN }}
           datadog-api-key: ${{ secrets.DATADOG_API_KEY }}
@@ -42,7 +42,7 @@ jobs:
   actions-billing-metrics:
     runs-on: ubuntu-latest
     steps:
-      - uses: yuya-takeyama/github-actions-metrics-to-datadog-action@v0.5.0
+      - uses: yuya-takeyama/github-actions-metrics-to-datadog-action@v0.6.0
         with:
           github-token: ${{ secrets.OWNER_GITHUB_TOKEN }}
           datadog-api-key: ${{ secrets.DATADOG_API_KEY }}
