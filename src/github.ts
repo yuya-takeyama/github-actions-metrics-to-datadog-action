@@ -98,9 +98,9 @@ const requestActionsBilling = async (
 export type Workflow =
   Endpoints['GET /repos/{owner}/{repo}/actions/workflows']['response']['data']['workflows'][0];
 export type RepositoryWorkflowBilling = {
-  UBUNTU?: { total_ms: number };
-  MACOS?: { total_ms: number };
-  WINDOWS?: { total_ms: number };
+  UBUNTU?: { total_ms?: number | undefined };
+  MACOS?: { total_ms?: number | undefined };
+  WINDOWS?: { total_ms?: number | undefined };
 };
 
 export const getRepositoryWorkflowsAndBillings = async (
