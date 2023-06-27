@@ -83,6 +83,7 @@ const requestActionsBilling = async (
   context: Context,
   octokit: Octokit,
 ): Promise<BillingResponse> => {
+  debug('requestActionsBilling()');
   const owner = context.repo.owner;
   try {
     return await octokit.request('GET /orgs/{org}/settings/billing/actions', {
@@ -110,6 +111,7 @@ export const getRepositoryWorkflowsAndBillings = async (
   context: Context,
   octokit: Octokit,
 ): Promise<[Workflow, RepositoryWorkflowBilling][]> => {
+  debug('getRepositoryWorkflowsAndBillings()');
   const owner = context.repo.owner;
   const repo = context.repo.repo;
   const workflowsRes = await octokit.request(

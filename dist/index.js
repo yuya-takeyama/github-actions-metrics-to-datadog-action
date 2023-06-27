@@ -93,6 +93,7 @@ const getActionsBillingData = ({ context, octokit, }) => __awaiter(void 0, void 
 });
 exports.getActionsBillingData = getActionsBillingData;
 const requestActionsBilling = (context, octokit) => __awaiter(void 0, void 0, void 0, function* () {
+    (0, core_1.debug)('requestActionsBilling()');
     const owner = context.repo.owner;
     try {
         return yield octokit.request('GET /orgs/{org}/settings/billing/actions', {
@@ -106,6 +107,7 @@ const requestActionsBilling = (context, octokit) => __awaiter(void 0, void 0, vo
     }
 });
 const getRepositoryWorkflowsAndBillings = (context, octokit) => __awaiter(void 0, void 0, void 0, function* () {
+    (0, core_1.debug)('getRepositoryWorkflowsAndBillings()');
     const owner = context.repo.owner;
     const repo = context.repo.repo;
     const workflowsRes = yield octokit.request('GET /repos/{owner}/{repo}/actions/workflows', { owner, repo });
@@ -207,18 +209,22 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.getWorkflowTags = exports.sendMetrics = void 0;
 const github_1 = __nccwpck_require__(5438);
 const core_1 = __nccwpck_require__(6762);
+const core_2 = __nccwpck_require__(2186);
 const datadog_1 = __nccwpck_require__(1401);
 const github_2 = __nccwpck_require__(5928);
 const sendMetrics = (inputs) => __awaiter(void 0, void 0, void 0, function* () {
     const octokit = new core_1.Octokit({ auth: inputs.githubToken });
     if (inputs.enableWorkflowMetrics && github_1.context.payload.workflow_run) {
         const workflowRun = (0, github_2.parseWorkflowRun)(github_1.context.payload.workflow_run);
+        (0, core_2.debug)('CALL sendWorkflowMetrics()');
         yield sendWorkflowMetrics({ inputs, workflowRun });
     }
     if (inputs.enableBillingMetrics) {
+        (0, core_2.debug)('CALL sendOwnerMetrics()');
         yield sendOwnerMetrics({ octokit, inputs });
     }
     if (inputs.enableRepositoryWorkflowsBillingMetrics) {
+        (0, core_2.debug)('CALL sendRepositoryWorkflowsBillingMetrics()');
         yield sendRepositoryWorkflowsBillingMetrics({ octokit, inputs });
     }
 });

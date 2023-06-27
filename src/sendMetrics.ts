@@ -2,6 +2,7 @@ import type { Inputs } from './inputs';
 import { context } from '@actions/github';
 import { Context } from '@actions/github/lib/context';
 import { Octokit } from '@octokit/core';
+import { debug } from '@actions/core';
 
 import {
   Metric,
@@ -29,12 +30,15 @@ export const sendMetrics = async (inputs: Inputs): Promise<void> => {
     const workflowRun = parseWorkflowRun(
       context.payload.workflow_run as WorkflowRunPayload,
     );
+    debug('CALL sendWorkflowMetrics()');
     await sendWorkflowMetrics({ inputs, workflowRun });
   }
   if (inputs.enableBillingMetrics) {
+    debug('CALL sendOwnerMetrics()');
     await sendOwnerMetrics({ octokit, inputs });
   }
   if (inputs.enableRepositoryWorkflowsBillingMetrics) {
+    debug('CALL sendRepositoryWorkflowsBillingMetrics()');
     await sendRepositoryWorkflowsBillingMetrics({ octokit, inputs });
   }
 };
