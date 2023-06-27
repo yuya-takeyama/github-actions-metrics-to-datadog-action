@@ -176,6 +176,8 @@ const core_1 = __nccwpck_require__(2186);
     }
     catch (err) {
         const message = err instanceof Error && err.message ? err.message : 'Unknown error';
+        // eslint-disable-next-line no-console
+        console.error(err);
         (0, core_1.setFailed)(message);
     }
 }))();
