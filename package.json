@@ -23,7 +23,7 @@
   "dependencies": {
     "@actions/core": "1.9.1",
     "@actions/github": "4.0.0",
-    "node-fetch": "3.0.0"
+    "node-fetch": "3.2.10"
   },
   "devDependencies": {
     "@types/jest": "27.5.2",
