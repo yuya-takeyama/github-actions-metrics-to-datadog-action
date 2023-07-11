@@ -134,16 +134,21 @@ export const getRepositoryWorkflowsAndBillings = async (
     const billingPromises: Promise<[Workflow, RepositoryWorkflowBilling]>[] =
       workflows.map(async workflow => {
         return new Promise(async resolved => {
-          const res = await octokit.request(
-            'GET /repos/{owner}/{repo}/actions/workflows/{workflow_id}/timing',
-            {
-              owner,
-              repo,
-              workflow_id: workflow.id,
-            },
-          );
-          info(`[INFO] ${JSON.stringify(res)}`);
-          resolved([workflow, res.data.billable]);
+          try {
+            const res = await octokit.request(
+              'GET /repos/{owner}/{repo}/actions/workflows/{workflow_id}/timing',
+              {
+                owner,
+                repo,
+                workflow_id: workflow.id,
+              },
+            );
+            info(`[INFO] ${JSON.stringify(res)}`);
+            resolved([workflow, res.data.billable]);
+          } catch (e) {
+            error(`[ERROR] ${JSON.stringify(e)}`);
+            throw e;
+          }
         });
       });
     return Promise.all(billingPromises);
