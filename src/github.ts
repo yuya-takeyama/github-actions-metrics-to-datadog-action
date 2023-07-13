@@ -141,6 +141,7 @@ export const getRepositoryWorkflowsAndBillings = async (
                 owner,
                 repo,
                 workflow_id: workflow.id,
+                request: { retries: 2, retryAfter: 30 },
               },
             );
             info(`[INFO] ${JSON.stringify(res)}`);

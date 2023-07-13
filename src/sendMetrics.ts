@@ -2,6 +2,7 @@ import type { Inputs } from './inputs';
 import { context } from '@actions/github';
 import { Context } from '@actions/github/lib/context';
 import { Octokit } from '@octokit/core';
+import { retry } from '@octokit/plugin-retry';
 
 import {
   Metric,
@@ -23,7 +24,8 @@ import {
 } from './github';
 
 export const sendMetrics = async (inputs: Inputs): Promise<void> => {
-  const octokit = new Octokit({ auth: inputs.githubToken });
+  const MyOctokit = Octokit.plugin(retry);
+  const octokit = new MyOctokit({ auth: inputs.githubToken });
 
   if (inputs.enableWorkflowMetrics && context.payload.workflow_run) {
     const workflowRun = parseWorkflowRun(
