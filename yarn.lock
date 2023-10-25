@@ -793,10 +793,10 @@
     "@octokit/types" "^12.0.0"
     universal-user-agent "^6.0.0"
 
-"@octokit/openapi-types@^19.0.1":
-  version "19.0.1"
-  resolved "https://registry.yarnpkg.com/@octokit/openapi-types/-/openapi-types-19.0.1.tgz#b83bd8ef1a6e1a2d88072c87747fa130348ef8fe"
-  integrity sha512-zC+73r2HIoRb9rWW5S3Y759hrpadlD5pNnya/QfZv0JZE7mvMu+FUa7nxHqTadi2hZc4BPZjJ8veDTuJnh8+8g==
+"@octokit/openapi-types@^19.0.2":
+  version "19.0.2"
+  resolved "https://registry.yarnpkg.com/@octokit/openapi-types/-/openapi-types-19.0.2.tgz#d72778fe2f6151314b6f0201fbc771bb741276fc"
+  integrity sha512-8li32fUDUeml/ACRp/njCWTsk5t17cfTM1jp9n08pBrqs5cDFJubtjsSnuz56r5Tad6jdEPJld7LxNp9dNcyjQ==
 
 "@octokit/plugin-paginate-rest@^9.0.0":
   version "9.0.0"
@@ -833,11 +833,11 @@
     universal-user-agent "^6.0.0"
 
 "@octokit/types@^12.0.0":
-  version "12.1.0"
-  resolved "https://registry.yarnpkg.com/@octokit/types/-/types-12.1.0.tgz#e31f6d524efb9d49206c5b28ab18fd6688f6a12a"
-  integrity sha512-JmjQr5ZbOnpnOLX5drI2O2I1N9suOYZAgINHXTlVVg4lRtUifMv2JssT+RhmNxQwXH153Pc8HaCMdTRkqI1oVQ==
+  version "12.1.1"
+  resolved "https://registry.yarnpkg.com/@octokit/types/-/types-12.1.1.tgz#376726d8435625b3a1b6fcd8cd3e1b03ade939dc"
+  integrity sha512-qnJTldJ1NyGT5MTsCg/Zi+y2IFHZ1Jo5+njNCjJ9FcainV7LjuHgmB697kA0g4MjZeDAJsM3B45iqCVsCLVFZg==
   dependencies:
-    "@octokit/openapi-types" "^19.0.1"
+    "@octokit/openapi-types" "^19.0.2"
 
 "@sinclair/typebox@^0.25.16":
   version "0.25.24"
